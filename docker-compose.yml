@@ -1,0 +1,51 @@
+version: '2'
+services:
+  # web with xdebug - actency images
+  web:
+    container_name: "${PROJECT_NAME}_web"
+    # actency/docker-apache-php available tags: latest,7.2-1.0, 7.2, 7.1, 7.0, 5.6, 5.5, 5.4, 5.3
+    image: actency/docker-apache-php:$PHP_TAG
+    ports:
+      - $WEB_PORT
+      - $XDEBUG_PORT
+    environment:
+      - SERVERNAME=SERVER_NAME
+      - SERVERALIAS=SERVER_ALIAS
+      - DRUSH_VERSION=$DRUSH_VERSION
+      - DOCUMENTROOT=$DOCUMENT_ROOT
+    volumes:
+      - .:/var/www/html/:cached
+      - "${LOCAL_SSH}:/var/www/.ssh/"
+    links:
+      - database:mysql
+    tty: true
+    restart: always
+    depends_on:
+      - database
+
+  # database container - actency images
+  database:
+    container_name: "${PROJECT_NAME}_db"
+    # actency/docker-mysql available tags: latest, 5.7, 5.6, 5.5
+    image: actency/docker-mysql:$MYSQL_TAG
+    ports:
+      - $DATABASE_PORT
+    environment:
+      - MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$DB_NAME
+      - MYSQL_USER=$DB_USER
+      - MYSQL_PASSWORD=$DB_PASSWORD
+    volumes:
+      - ./db-backups:/var/mysql/backups:delegated
+    restart: always
+
+  # phpmyadmin container - actency images
+  phpmyadmin:
+    image: actency/docker-phpmyadmin
+    ports:
+      - $PMA_PORT
+    environment:
+      - MYSQL_ROOT_PASSWORD=$PMA_ROOT_PASSWORD
+      - UPLOAD_SIZE=1G
+    links:
+      - database:mysql
