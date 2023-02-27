@@ -439,7 +439,7 @@
         },
         {
             "name": "drupal/core",
-            "version": "10.0.3",
+            "version": "9.4.8",
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/drupal/core/zipball/e933fc86ecd6747832ed463740f7c8ca09247d0e",
